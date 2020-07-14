@@ -73,7 +73,10 @@ hostname = socket.gethostname()
 #else:
 for i in interfaces:
 	netifaces.ifaddresses(i[0])
-	i[1] = netifaces.ifaddresses(i[0])[netifaces.AF_INET][0]['addr']
+	try:
+		i[1] = netifaces.ifaddresses(i[0])[netifaces.AF_INET][0]['addr']
+	except (KeyError, IndexError):
+		pass
 
 # Get cpu temperature
 process = Popen(['vcgencmd', 'measure_temp'], stdout=PIPE)
