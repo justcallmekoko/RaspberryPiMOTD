@@ -7,6 +7,7 @@ import socket
 import subprocess
 import importlib
 from subprocess import PIPE, Popen
+from psutil import virtual_memory
 
 W  = '\033[0m'  # white (normal)
 R  = '\033[31m' # red
@@ -37,6 +38,19 @@ except ImportError:
         except Exception, e:
                 print(R + "Could not install netifaces: "  + str(e) + W)
 
+#import psutil. Install if not present
+try:
+	import psutil
+except ImportError:
+        print(R + "psutil not installed. Installing..." + W)
+        try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "--user", "psutil"])
+                print(G + "psutil installed!" + W)
+                import netifaces
+        except Exception, e:
+                print(R + "Could not install psutil: "  + str(e) + W)
+
+
 # Import pyfiglet. Install if not present
 try:
 	from pyfiglet import Figlet
@@ -51,7 +65,7 @@ except ImportError:
 
 interfaces = [['eth0', ''], ['wlan0', '']]
 
-def displayInfo(hostname, interfaces_array, temp):
+def displayInfo(hostname, interfaces_array, temp, mem):
 
 	custom_fig = Figlet(font='slant', width=2000)
 	print(R + custom_fig.renderText(hostname) + W)
@@ -62,6 +76,7 @@ def displayInfo(hostname, interfaces_array, temp):
 		print(C + i[0] + ": " + str(i[1]) + W)
 	print(C + "Hostname: " + str(hostname) + W)
 	print(C + "CPU Temp: " + str(temp) + u"\N{DEGREE SIGN}C" + W)
+	print(C + "     RAM: " + str(round(float(mem.total) / 1000000000.0, 3)) + " GB" + W)
 
 #print ("This is a message from python")
 
@@ -82,4 +97,5 @@ for i in interfaces:
 process = Popen(['vcgencmd', 'measure_temp'], stdout=PIPE)
 output, _error = process.communicate()
 cpu_temp = float(output[output.index('=') + 1:output.rindex("'")])
-displayInfo(hostname, interfaces, cpu_temp)
+mem = virtual_memory()
+displayInfo(hostname, interfaces, cpu_temp, mem)
