@@ -7,7 +7,6 @@ import socket
 import subprocess
 import importlib
 from subprocess import PIPE, Popen
-from psutil import virtual_memory
 
 W  = '\033[0m'  # white (normal)
 R  = '\033[31m' # red
@@ -40,7 +39,7 @@ except ImportError:
 
 #import psutil. Install if not present
 try:
-	import psutil
+	from psutil import virtual_memory
 except ImportError:
         print(R + "psutil not installed. Installing..." + W)
         try:
